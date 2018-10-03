@@ -8,24 +8,26 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 library(tidyverse)
-x <- read_csv(file = "polls_IT-parliament_2018-10-01.csv")
+x <- read_csv(file = "https://pollofpolls.eu/get/polls/IT-parliament/format/csv", guess_max = 3000)
 ```
 
-```{r message = FALSE, message = FALSE}
+```{r, message = FALSE, warning = FALSE}
+good_firms <- x %>%
+  count(firm) %>%
+  filter(nn > 100)
+
 x %>%
+  filter(firm %in% good_firms$firm) %>%
   select(date, firm, n, LN, M5S, PD, FIPDLFI) %>%
   filter(date >= "2017-09-26") %>%
   gather(key = "party", value = "poll", LN:FIPDLFI) %>%
   ggplot(aes(x = date, y = poll, color = party)) +
-    geom_point(size = .5, alpha = 0.2) + geom_smooth()
-
-glimpse(x)
-
+    geom_point(size = .5, alpha = 0.2) +
+    geom_smooth() +
+    ggtitle("Italian Polls")
+    
 x %>%
   ggplot(aes(x = date, y = LN)) +
   geom_point(aes(col = "blue")) +
   geom_point(aes(x = date, y = M5S, col = "red"))
-
-
 ```
-
